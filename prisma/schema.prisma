@@ -1,0 +1,23 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ticket {
+  id          Int      @id @default(autoincrement())
+  requester   String   // Nome do solicitante
+  department  String   // Departamento do solicitante
+  description String   // Descrição do chamado
+  priority    String   // Prioridade do chamado
+  status      String   // Status do chamado
+  createdAt   DateTime @default(now())
+  closedAt    DateTime? // Data e hora de encerramento do chamado
+}
+
