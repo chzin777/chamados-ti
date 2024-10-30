@@ -1,16 +1,16 @@
 # IT Inventory 📦
-Um inventário simples para gestão de TI com HTML, CSS e JavaScript.
+Um site de chamados simples para gestão de TI, utilizando HTML, CSS e JavaScript.
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 ![Licença](https://img.shields.io/github/license/seuusuario/seuprojeto)
 
 ## Demonstração
-![Screenshot1](https://i.postimg.cc/MpLf62Y5/image.png)
-![Screenshot2](https://i.postimg.cc/ZR8Wx9zs/image.png)
+![Screenshot1](https://i.postimg.cc/Znp2HZCY/image.png)
+![Screenshot2](https://i.postimg.cc/9MqnXVPP/image.png)
 
 ## Funcionalidades
-- 📊 Gerenciamento de estoque de equipamentos de TI
-- 🔄 Registro de entradas e saídas de equipamentos
-- 📈 Relatórios de inventário
+- 📊 Gerenciamento de TI
+- 🔄 Registro abertura e encerramento de chamados
+- 📈 Relatórios de chamados
 - 💻 Interface simples e intuitiva
 
 ## Tecnologias Utilizadas
@@ -29,8 +29,9 @@ Um inventário simples para gestão de TI com HTML, CSS e JavaScript.
 ### **Roadmap de Funcionalidades**
 ```markdown
 ## Roadmap
-- [x] Criar interface básica de inventário
+- [x] Criar interface básica do site
 - [ ] Implementar autenticação de usuário
+- [ ] Implementar chat de texto
 
 ## Recursos
 - [Documentação do Node.js](https://nodejs.org/en/docs/)
