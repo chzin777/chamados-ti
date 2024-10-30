@@ -1,7 +1,7 @@
 # R3 Chamados 💻
 Um site de chamados simples para gestão de TI, utilizando HTML, CSS e JavaScript.
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-![Licença](https://img.shields.io/github/license/seuusuario/seuprojeto)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Demonstração
 ![Screenshot1](https://i.postimg.cc/Znp2HZCY/image.png)
