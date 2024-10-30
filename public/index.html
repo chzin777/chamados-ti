@@ -5,200 +5,279 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>R3 Chamados</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <header>
         <h1 class="title">R3 CHAMADOS</h1>
-        <div id="total-itens">Total de Chamados: 0</div>
+        <div id="auth-container">
+            <button onclick="logout()" class="logout-btn" style="display: none;">Logout</button>
+        </div>
     </header>
 
-    <h1>Chamados</h1>
+    <!-- Mensagens de feedback para login e registro -->
+    <div id="message-container" style="text-align: center; color: red; margin-bottom: 20px;"></div>
 
-    <!-- Botão para Download do Relatório de Chamados -->
-    <div id="download-container">
-        <button onclick="downloadReport()" class="download-btn">📥 Baixar Relatório</button>
-    </div>
-    
-    <!-- Contêiner para o Formulário e o Campo de Pesquisa -->
-    <div id="form-search-container">
-        <!-- Formulário de Abertura de Chamado -->
-        <form id="open-ticket-form">
-            <input type="text" id="nome" placeholder="Nome do Solicitante" required>
-            <input type="text" id="departamento" placeholder="Departamento" required>
-            <input type="text" id="descricao" placeholder="Descrição do Chamado" required>
-            <label for="prioridade">Selecione a Prioridade do Chamado:</label>
-            <select id="prioridade" name="prioridade">
-                <option value="Muito Baixa">Muito Baixa</option>
-                <option value="Baixa">Baixa</option>
-                <option value="Média">Média</option>
-                <option value="Alta">Alta</option>
-                <option value="Muito Alta">Muito Alta</option>
-            </select>
-            <button type="submit">Abrir Chamado</button>
+    <!-- Tela de Login -->
+    <div id="login-container">
+        <h2>Login</h2>
+        <form id="login-form" autocomplete="off">
+            <input type="text" id="login-username" placeholder="Nome de usuário" required>
+            <input type="password" id="login-password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
         </form>
+        <p>Não tem uma conta? <button onclick="showRegister()" class="link-button">Registrar</button></p>
     </div>
 
-    <!-- Contêiner para exibir os Chamados -->
-    <div id="chamados-categorias"></div>
-    
+    <!-- Tela de Registro -->
+    <div id="register-container" style="display: none;">
+        <h2>Registro</h2>
+        <form id="register-form" autocomplete="off">
+            <input type="text" id="register-username" placeholder="Nome de usuário" required>
+            <input type="password" id="register-password" placeholder="Senha" required>
+            <button type="submit">Registrar</button>
+        </form>
+        <p>Já tem uma conta? <button onclick="showLogin()" class="link-button">Voltar para Login</button></p>
+    </div>
+
+    <!-- Conteúdo Principal (exibe chamados apenas para admin) -->
+    <div id="main-content" style="display: none;">
+        <h1>Chamados</h1>
+
+        <!-- Botão para Download do Relatório de Chamados -->
+        <div id="download-container">
+            <button onclick="downloadReport()" class="download-btn">📥 Baixar Relatório</button>
+        </div>
+
+        <!-- Formulário de Abertura de Chamado (visível para todos os usuários logados) -->
+        <div id="form-search-container">
+            <form id="open-ticket-form">
+                <input type="text" id="nome" placeholder="Nome do Solicitante" required>
+                <input type="text" id="departamento" placeholder="Departamento" required>
+                <input type="text" id="descricao" placeholder="Descrição do Chamado" required>
+                <label for="prioridade">Selecione a Prioridade do Chamado:</label>
+                <select id="prioridade" name="prioridade">
+                    <option value="Muito Baixa">Muito Baixa</option>
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média">Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Muito Alta">Muito Alta</option>
+                </select>
+                <button type="submit">Abrir Chamado</button>
+            </form>
+        </div>
+
+        <!-- Contêiner para exibir os Chamados (apenas para admin) -->
+        <div id="chamados-categorias" style="display: none;"></div>
+    </div>
+
     <footer>
-        <p>&copy; 2024 It Inventory. Todos os direitos reservados. Christofer</p>
+        <p>&copy; 2024 R3 Chamados. Todos os direitos reservados. Christofer</p>
     </footer>
 
     <script>
-        // Função para fazer o download do relatório
-        function downloadReport() {
-            window.location.href = '/download-report';
-        }
-
-        // Função para enviar um novo chamado
-        document.getElementById('open-ticket-form').addEventListener('submit', async function(event) {
+         // Função para enviar um novo chamado
+         document.getElementById('open-ticket-form').addEventListener('submit', async function(event) {
             event.preventDefault(); // Previne o recarregamento da página
             
-            // Coletando dados do formulário
             const requester = document.getElementById('nome').value;
             const department = document.getElementById('departamento').value;
             const description = document.getElementById('descricao').value;
             const priority = document.getElementById('prioridade').value;
 
-            try {
-                // Enviando o chamado para o servidor
-                const response = await fetch('/add-ticket', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ requester, department, description, priority })
-                });
+            const response = await fetch('/add-ticket', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ requester, department, description, priority })
+            });
 
-                // Verificação de sucesso ou erro
-                if (response.ok) {
-                    const newTicket = await response.json();
-                    alert(newTicket.message); // Exibe mensagem de sucesso
-                    document.getElementById('open-ticket-form').reset(); // Limpa o formulário
-                    addNewTicketToDisplay(newTicket.newTicket); // Adiciona o novo chamado à interface
-                } else {
-                    const error = await response.json();
-                    alert(`Erro ao abrir chamado: ${error.error}`); // Exibe mensagem de erro
-                }
-            } catch (error) {
-                console.error('Erro ao abrir o chamado:', error);
-                alert('Erro ao abrir o chamado. Verifique a conexão com o servidor.');
+            if (response.ok) {
+                const newTicket = await response.json();
+                showMessage(newTicket.message, 'green');
+                document.getElementById('open-ticket-form').reset();
+                if (isAdmin) addNewTicketToDisplay(newTicket.newTicket);
+            } else {
+                const error = await response.json();
+                showMessage(`Erro ao abrir chamado: ${error.error}`);
             }
         });
 
-        // Função para adicionar um novo chamado à interface
-        function addNewTicketToDisplay(ticket) {
-            const chamadosCategorias = document.getElementById("chamados-categorias");
+        let isAdmin = false;
 
-            // Cria o elemento do chamado com botão de encerrar
-            const ticketElement = document.createElement("div");
-            ticketElement.classList.add("ticket-item", getPriorityClass(ticket.priority));
-
-            ticketElement.innerHTML = `
-                <strong>Solicitante:</strong> <p>${ticket.requester}</p>
-                <strong>Departamento:</strong> <p>${ticket.department}</p>
-                <strong>Descrição:</strong> <p>${ticket.description}</p>
-                <strong>Status:</strong> <p>${ticket.status}</p>
-                <button onclick="closeTicket(${ticket.id}, this)" class="btn-close">Encerrar Chamado</button>
-            `;
-
-            chamadosCategorias.prepend(ticketElement);
+        // Função para exibir mensagens temporárias
+        function showMessage(message, color = 'red') {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.textContent = message;
+            messageContainer.style.color = color;
+            setTimeout(() => messageContainer.textContent = '', 3000);
         }
 
-        // Função para encerrar um chamado
-        async function closeTicket(ticketId, button) {
-            try {
-                // Enviar a atualização de status para o servidor
-                const response = await fetch(`/update-ticket-status/${ticketId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ status: 'Encerrado' })
-                });
+        // Verifica autenticação ao carregar a página
+        document.addEventListener("DOMContentLoaded", async () => {
+            const authCheck = await fetch('/check-auth');
+            const authStatus = await authCheck.json();
 
-                if (response.ok) {
-                    // Remover o chamado da interface
-                    const ticketElement = button.closest(".ticket-item");
-                    ticketElement.remove();
-                    alert("Chamado encerrado com sucesso.");
-                } else {
-                    alert("Erro ao encerrar o chamado.");
+            if (authStatus.isAuthenticated) {
+                isAdmin = authStatus.isAdmin;
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+                document.querySelector('.logout-btn').style.display = 'inline';
+
+                // Carrega os chamados somente se o usuário for admin
+                if (isAdmin) {
+                    document.getElementById("chamados-categorias").style.display = "block";
+                    loadTicketsByPriority();
                 }
-            } catch (error) {
-                console.error("Erro ao encerrar o chamado:", error);
-                alert("Erro ao encerrar o chamado. Verifique a conexão com o servidor.");
+            } else {
+                document.getElementById("login-container").style.display = "block";
+            }
+        });
+
+        // Função de Login
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                isAdmin = username === 'admin';
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+                document.querySelector('.logout-btn').style.display = 'inline';
+
+                if (isAdmin) {
+                    document.getElementById("chamados-categorias").style.display = "block";
+                    loadTicketsByPriority();
+                }
+                showMessage(result.message, 'green');
+            } else {
+                showMessage(result.error);
+            }
+        });
+
+        // Função de Registro
+        document.getElementById('register-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                showMessage(result.message, 'green');
+                showLogin();
+            } else {
+                showMessage(result.error);
+            }
+        });
+
+        // Função de Logout
+        async function logout() {
+            const response = await fetch('/logout', {
+                method: 'POST'
+            });
+            if (response.ok) {
+                document.getElementById("main-content").style.display = "none";
+                document.getElementById("login-container").style.display = "block";
+                document.querySelector('.logout-btn').style.display = 'none';
+                document.getElementById("chamados-categorias").style.display = "none";
+                showMessage("Logout realizado com sucesso.", 'green');
+            } else {
+                showMessage("Erro ao realizar logout.");
             }
         }
 
-        // Função para carregar e exibir os chamados com suas cores de prioridade
+        // Função para carregar chamados por prioridade (somente para admin)
         async function loadTicketsByPriority() {
-            try {
-                const response = await fetch('/tickets-by-priority');
-                if (response.ok) {
-                    const ticketsByPriority = await response.json();
-                    displayTicketsByPriority(ticketsByPriority);
-                } else {
-                    console.error('Erro ao carregar chamados por prioridade');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
+            const response = await fetch('/tickets-by-priority');
+            if (response.ok) {
+                const ticketsByPriority = await response.json();
+                displayTicketsByPriority(ticketsByPriority);
+            } else {
+                console.error('Erro ao carregar chamados por prioridade');
             }
         }
 
-        // Função para exibir chamados organizados por prioridade
+        // Exibir os chamados com base na prioridade
         function displayTicketsByPriority(ticketsByPriority) {
             const chamadosCategorias = document.getElementById("chamados-categorias");
             chamadosCategorias.innerHTML = '';
 
             for (const priority in ticketsByPriority) {
-                const priorityDiv = document.createElement("div");
-                priorityDiv.classList.add("priority");
-
-                const priorityTitle = document.createElement("h2");
-                priorityTitle.textContent = `Prioridade: ${priority}`;
-                priorityDiv.appendChild(priorityTitle);
-
                 const tickets = ticketsByPriority[priority];
-                tickets.forEach(ticket => {
-                    const ticketElement = document.createElement("div");
-                    ticketElement.classList.add("ticket-item", getPriorityClass(ticket.priority));
+                if (tickets && tickets.length > 0) {
+                    const priorityDiv = document.createElement("div");
+                    priorityDiv.classList.add("priority");
 
-                    ticketElement.innerHTML = `
-                        <strong>Solicitante:</strong> <p>${ticket.requester}</p>
-                        <strong>Departamento:</strong> <p>${ticket.department}</p>
-                        <strong>Descrição:</strong> <p>${ticket.description}</p>
-                        <strong>Status:</strong> <p>${ticket.status}</p>
-                        <button onclick="closeTicket(${ticket.id}, this)" class="btn-close">Encerrar Chamado</button>
-                    `;
-                    priorityDiv.appendChild(ticketElement);
+                    const priorityTitle = document.createElement("h2");
+                    priorityTitle.textContent = `Prioridade: ${priority}`;
+                    priorityDiv.appendChild(priorityTitle);
+
+                    tickets.forEach(ticket => {
+                        const ticketElement = document.createElement("div");
+                        ticketElement.classList.add("ticket-item", `priority-${ticket.priority.toLowerCase().replace(" ", "-")}`);
+
+                        ticketElement.innerHTML = `
+                            <strong>Solicitante:</strong> <p>${ticket.requester}</p>
+                            <strong>Departamento:</strong> <p>${ticket.department}</p>
+                            <strong>Descrição:</strong> <p>${ticket.description}</p>
+                            <strong>Status:</strong> <p>${ticket.status}</p>
+                            ${isAdmin ? `<button onclick="closeTicket(${ticket.id}, this)" class="btn-close">Encerrar Chamado</button>` : ''}
+                        `;
+                        priorityDiv.appendChild(ticketElement);
+                    });
+
+                    chamadosCategorias.appendChild(priorityDiv);
+                }
+            }
+        }
+
+        // Função para encerrar chamado
+        async function closeTicket(ticketId, button) {
+            try {
+                const response = await fetch(`/update-ticket-status/${ticketId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'Encerrado' })
                 });
 
-                chamadosCategorias.appendChild(priorityDiv);
+                if (response.ok) {
+                    button.closest(".ticket-item").remove();
+                    showMessage("Chamado encerrado com sucesso.", 'green');
+                } else {
+                    showMessage("Erro ao encerrar o chamado.");
+                }
+            } catch (error) {
+                console.error("Erro ao encerrar o chamado:", error);
+                showMessage("Erro ao encerrar o chamado. Verifique a conexão com o servidor.");
             }
         }
 
-        // Função auxiliar para definir a classe de cor de prioridade
-        function getPriorityClass(priority) {
-            switch (priority) {
-                case 'Muito Baixa':
-                case 'Baixa':
-                    return 'priority-baixa';
-                case 'Média':
-                    return 'priority-media';
-                case 'Alta':
-                case 'Muito Alta':
-                    return 'priority-alta';
-                default:
-                    return '';
-            }
+        // Função para mostrar o formulário de registro e ocultar o de login
+        function showRegister() {
+            document.getElementById("login-container").style.display = "none";
+            document.getElementById("register-container").style.display = "block";
         }
 
-        // Carregar chamados ao abrir a página
-        document.addEventListener("DOMContentLoaded", loadTicketsByPriority);
+        // Função para mostrar o formulário de login e ocultar o de registro
+        function showLogin() {
+            document.getElementById("login-container").style.display = "block";
+            document.getElementById("register-container").style.display = "none";
+        }
     </script>
 </body>
 </html>
