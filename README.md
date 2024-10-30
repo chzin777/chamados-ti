@@ -1,4 +1,4 @@
-# IT Inventory 📦
+# R3 Chamados 📦
 Um site de chamados simples para gestão de TI, utilizando HTML, CSS e JavaScript.
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 ![Licença](https://img.shields.io/github/license/seuusuario/seuprojeto)
